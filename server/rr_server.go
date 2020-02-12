@@ -18,15 +18,15 @@ import (
 
     dht "github.com/libp2p/go-libp2p-kad-dht"
     multiaddr "github.com/multiformats/go-multiaddr"
-    logging "github.com/whyrusleeping/go-logging"
+    //logging "github.com/whyrusleeping/go-logging"
 
-    "github.com/ipfs/go-log"
+    //"github.com/ipfs/go-log"
 )
 
-var logger = log.Logger("rendezvousrat")
+//var logger = log.Logger("rendezvousrat")
 
 func handleStream(stream network.Stream) {
-    logger.Info("Got a new stream!")
+    fmt.Println("Got a new stream!")
 
     // Create a buffer stream for non blocking read and write.
     rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
@@ -82,8 +82,8 @@ func writeData(rw *bufio.ReadWriter) {
 }
 
 func main() {
-    log.SetAllLoggers(logging.WARNING)
-    log.SetLogLevel("rendezvous", "info")
+    //log.SetAllLoggers(logging.WARNING)
+    //log.SetLogLevel("rendezvous", "info")
     help := flag.Bool("h", false, "Display Help")
     config, err := ParseFlags()
     if err != nil {
