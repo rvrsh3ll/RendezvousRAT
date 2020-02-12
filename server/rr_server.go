@@ -44,11 +44,11 @@ func readData(rw *bufio.ReadWriter) {
             continue
         } else if strings.Contains(str,":") {
             var id = strings.Split(str, ":") 
-            fmt.Printf("%s Connected!", id[0])
+            fmt.Printf("%s Connected!\n", id[0])
         } else if str != "\n" {
             // Green console colour:    \x1b[32m
             // Reset console colour:    \x1b[0m
-            fmt.Printf("\x1b[32m%s\x1b[0m> ", str)
+            fmt.Printf("%s", str)
         }
 
     }
@@ -108,7 +108,7 @@ func main() {
     if err != nil {
         //panic(err)
     }
-    logger.Info("Host created. We are:", host.ID())
+    fmt.Println("Host created. We are:", host.ID())
     //logger.Info(host.Addrs())
 
     // Set a function as stream handler. This function is called when a peer
@@ -151,10 +151,10 @@ func main() {
 
     // We use a rendezvous point "meet me here" to announce our location.
     // This is like telling your friends to meet you at the Eiffel Tower.
-    logger.Warning("Announcing ourselves...")
+    fmt.Println("Announcing ourselves...")
     routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
     discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
-    logger.Warning("Successfully announced!")
+    fmt.Println("Successfully announced!")
 
     // Now, look for others who have announced
     // This is like your friend telling you the location to meet you.
@@ -177,15 +177,15 @@ func main() {
             //logger.Warning("Connection failed:", err)
             
         } else {
-            fmt.Println("Waiting for agent...")
+
             rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
             go writeData(rw)
             go readData(rw)
         }
 
-        
     }
+    fmt.Println("Waiting for agent...")
 
     select {}
 }

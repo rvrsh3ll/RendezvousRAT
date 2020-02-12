@@ -62,7 +62,7 @@ func readData(rw *bufio.ReadWriter) {
             break
         }
 
-        if str == "exit" {
+        if str != "" {
             break
         } else {
             text := strings.TrimSuffix(str, "\n")
@@ -72,7 +72,7 @@ func readData(rw *bufio.ReadWriter) {
               fmt.Printf("error")
             fmt.Printf("%s", err)
             }
-            output := string(out[:])
+            output := string(out)
             _, err = rw.WriteString(fmt.Sprintf("%s", output))
             err = rw.Flush()
         }
