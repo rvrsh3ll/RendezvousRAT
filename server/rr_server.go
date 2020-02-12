@@ -98,6 +98,7 @@ func main() {
         return
     }
     banner.Print("rendezvousrat")
+    fmt.Println("")
     ctx := context.Background()
 
     // libp2p.New constructs a new libp2p Host. Other options can be added
@@ -155,7 +156,7 @@ func main() {
     routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
     discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
     fmt.Println("Successfully announced!")
-
+    fmt.Println("Waiting for agent...")
     // Now, look for others who have announced
     // This is like your friend telling you the location to meet you.
     //logger.Debug("Searching for other peers...")
@@ -185,7 +186,7 @@ func main() {
         }
 
     }
-    fmt.Println("Waiting for agent...")
+    
 
     select {}
 }

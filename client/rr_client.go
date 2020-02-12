@@ -18,12 +18,12 @@ import (
 
     dht "github.com/libp2p/go-libp2p-kad-dht"
     multiaddr "github.com/multiformats/go-multiaddr"
-    logging "github.com/whyrusleeping/go-logging"
+    //logging "github.com/whyrusleeping/go-logging"
 
-    "github.com/ipfs/go-log"
+    //"github.com/ipfs/go-log"
 )
 
-var logger = log.Logger("rendezvous")
+//var logger = log.Logger("rendezvous")
 
 func getHostname() string {
 
@@ -80,12 +80,12 @@ func readData(rw *bufio.ReadWriter) {
 
 func main() {
     autorestart.StartWatcher()
-    log.SetAllLoggers(logging.CRITICAL)
-    log.SetLogLevel("rendezvous", "critical")
+    //log.SetAllLoggers(logging.CRITICAL)
+    //log.SetLogLevel("rendezvous", "critical")
     //help := flag.Bool("h", false, "Display Help")
     config, err := ParseFlags()
     if err != nil {
-        panic(err)
+        //panic(err)
     }
 
 
@@ -99,10 +99,10 @@ func main() {
         libp2p.ListenAddrs([]multiaddr.Multiaddr(config.ListenAddresses)...),
     )
     if err != nil {
-        panic(err)
+        //panic(err)
     }
-    logger.Info("Host created. We are:", host.ID())
-    logger.Info(host.Addrs())
+    //logger.Info("Host created. We are:", host.ID())
+    //logger.Info(host.Addrs())
 
     // Set a function as stream handler. This function is called when a peer
     // initiates a connection and starts a stream with this peer.
@@ -114,14 +114,14 @@ func main() {
     // inhibiting future peer discovery.
     kademliaDHT, err := dht.New(ctx, host)
     if err != nil {
-        panic(err)
+        //panic(err)
     }
 
     // Bootstrap the DHT. In the default configuration, this spawns a Background
     // thread that will refresh the peer table every five minutes.
     //logger.Debug("Bootstrapping the DHT")
     if err = kademliaDHT.Bootstrap(ctx); err != nil {
-        panic(err)
+        //panic(err)
     }
 
     // Let's connect to the bootstrap nodes first. They will tell us about the
@@ -153,7 +153,7 @@ func main() {
     //logger.Debug("Searching for other peers...")
     peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
     if err != nil {
-        panic(err)
+        //panic(err)
     }
 
     for peer := range peerChan {
