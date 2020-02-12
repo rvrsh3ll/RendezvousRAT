@@ -177,13 +177,14 @@ func main() {
             //logger.Warning("Connection failed:", err)
             
         } else {
+            fmt.Println("Waiting for agent...")
             rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
             go writeData(rw)
             go readData(rw)
         }
 
-        logger.Warning("Waiting for agent...")
+        
     }
 
     select {}

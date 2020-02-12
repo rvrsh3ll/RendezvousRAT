@@ -73,7 +73,7 @@ func readData(rw *bufio.ReadWriter) {
             fmt.Printf("%s", err)
             }
             output := string(out[:])
-            _, err = rw.WriteString(fmt.Sprintf("%s\n", output))
+            _, err = rw.WriteString(fmt.Sprintf("%s", output))
             err = rw.Flush()
         }
 
