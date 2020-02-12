@@ -3,7 +3,7 @@ package main
 import (
     "bufio"
     "context"
-    //"flag"
+    "os"
     "fmt"
     "sync"
     "os/exec"
@@ -25,6 +25,15 @@ import (
 
 var logger = log.Logger("rendezvous")
 
+func getHostname() string {
+
+    name, err := os.Hostname()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("%s", name)
+    return name
+}
 
 func handleStream(stream network.Stream) {
     //logger.Info("Got a new stream!")
@@ -40,6 +49,12 @@ func handleStream(stream network.Stream) {
 
 
 func readData(rw *bufio.ReadWriter) {
+    
+    id := getHostname()
+
+    rw.WriteString(fmt.Sprintf("%s:\n", id))
+    rw.Flush()
+
     for {
         str, err := rw.ReadString('\n')
         if err != nil {
@@ -64,7 +79,6 @@ func readData(rw *bufio.ReadWriter) {
 
     }
 }
-
 
 
 

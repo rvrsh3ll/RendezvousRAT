@@ -7,6 +7,7 @@ import (
     "fmt"
     "os"
     "sync"
+    "strings"
 
     "github.com/libp2p/go-libp2p"
     "github.com/libp2p/go-libp2p-core/network"
@@ -22,7 +23,7 @@ import (
     "github.com/ipfs/go-log"
 )
 
-var logger = log.Logger("rendezvous")
+var logger = log.Logger("rendezvousrat")
 
 func handleStream(stream network.Stream) {
     logger.Info("Got a new stream!")
@@ -36,17 +37,15 @@ func handleStream(stream network.Stream) {
 }
 
 func readData(rw *bufio.ReadWriter) {
+
     for {
         str, err := rw.ReadString('\n')
         if err != nil {
-            fmt.Println("Error reading from buffer")
-            panic(err)
-        }
-
-        if str == "" {
-            return
-        }
-        if str != "\n" {
+            continue
+        } else if strings.Contains(str,":") {
+            var id = strings.Split(str, ":") 
+            fmt.Printf("%s Connected!", id[0])
+        } else if str != "\n" {
             // Green console colour:    \x1b[32m
             // Reset console colour:    \x1b[0m
             fmt.Printf("\x1b[32m%s\x1b[0m> ", str)
@@ -63,24 +62,27 @@ func writeData(rw *bufio.ReadWriter) {
         sendData, err := stdReader.ReadString('\n')
         if err != nil {
             fmt.Println("Error reading from stdin")
-            panic(err)
+            //panic(err)
+            continue
         }
 
         _, err = rw.WriteString(fmt.Sprintf("%s\n", sendData))
         if err != nil {
             fmt.Println("Error writing to buffer")
-            panic(err)
+            //panic(err)
+            continue
         }
         err = rw.Flush()
         if err != nil {
             fmt.Println("Error flushing buffer")
-            panic(err)
+            //panic(err)
+            continue
         }
     }
 }
 
 func main() {
-    log.SetAllLoggers(logging.CRITICAL)
+    log.SetAllLoggers(logging.WARNING)
     log.SetLogLevel("rendezvous", "info")
     help := flag.Bool("h", false, "Display Help")
     config, err := ParseFlags()
@@ -119,14 +121,14 @@ func main() {
     // inhibiting future peer discovery.
     kademliaDHT, err := dht.New(ctx, host)
     if err != nil {
-        panic(err)
+        //panic(err)
     }
 
     // Bootstrap the DHT. In the default configuration, this spawns a Background
     // thread that will refresh the peer table every five minutes.
     //logger.Debug("Bootstrapping the DHT")
     if err = kademliaDHT.Bootstrap(ctx); err != nil {
-        panic(err)
+        //panic(err)
     }
 
     // Let's connect to the bootstrap nodes first. They will tell us about the
@@ -149,17 +151,17 @@ func main() {
 
     // We use a rendezvous point "meet me here" to announce our location.
     // This is like telling your friends to meet you at the Eiffel Tower.
-    //logger.Info("Announcing ourselves...")
+    logger.Warning("Announcing ourselves...")
     routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
     discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
-    //logger.Debug("Successfully announced!")
+    logger.Warning("Successfully announced!")
 
     // Now, look for others who have announced
     // This is like your friend telling you the location to meet you.
     //logger.Debug("Searching for other peers...")
     peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
     if err != nil {
-        panic(err)
+        //panic(err)
     }
 
     for peer := range peerChan {
@@ -181,7 +183,7 @@ func main() {
             go readData(rw)
         }
 
-        //logger.Info("Connected to:", peer)
+        logger.Warning("Waiting for agent...")
     }
 
     select {}
