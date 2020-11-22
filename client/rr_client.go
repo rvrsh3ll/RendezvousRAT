@@ -17,11 +17,7 @@ import (
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
-	//logging "github.com/whyrusleeping/go-logging"
-	//"github.com/ipfs/go-log"
 )
-
-//var logger = log.Logger("rendezvous")
 
 func getHostname() string {
 
@@ -34,7 +30,6 @@ func getHostname() string {
 }
 
 func handleStream(stream network.Stream) {
-	//logger.Info("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
@@ -49,7 +44,7 @@ func readData(rw *bufio.ReadWriter) {
 
 	id := getHostname()
 
-	rw.WriteString(fmt.Sprintf("%s:\n", id))
+	rw.WriteString(fmt.Sprintf("+%s+\n", id))
 	rw.Flush()
 
 	for {
@@ -75,9 +70,6 @@ func readData(rw *bufio.ReadWriter) {
 
 func main() {
 
-	//log.SetAllLoggers(logging.CRITICAL)
-	//log.SetLogLevel("rendezvous", "critical")
-	//help := flag.Bool("h", false, "Display Help")
 	config, err := ParseFlags()
 	if err != nil {
 		//panic(err)
@@ -94,8 +86,6 @@ func main() {
 	if err != nil {
 		//panic(err)
 	}
-	//logger.Info("Host created. We are:", host.ID())
-	//logger.Info(host.Addrs())
 
 	// Set a function as stream handler. This function is called when a peer
 	// initiates a connection and starts a stream with this peer.
@@ -112,7 +102,6 @@ func main() {
 
 	// Bootstrap the DHT. In the default configuration, this spawns a Background
 	// thread that will refresh the peer table every five minutes.
-	//logger.Debug("Bootstrapping the DHT")
 	if err = kademliaDHT.Bootstrap(ctx); err != nil {
 		//panic(err)
 	}
@@ -126,9 +115,9 @@ func main() {
 		go func() {
 			defer wg.Done()
 			if err := host.Connect(ctx, *peerinfo); err != nil {
-				//logger.Warning(err)
+
 			} else {
-				//logger.Info("Connection established with bootstrap node:", *peerinfo)
+
 			}
 		}()
 	}
@@ -136,14 +125,13 @@ func main() {
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
-	//logger.Info("Announcing ourselves...")
+
 	routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
 	discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
-	//logger.Debug("Successfully announced!")
 
 	// Now, look for others who have announced
 	// This is like your friend telling you the location to meet you.
-	//logger.Debug("Searching for other peers...")
+
 	peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 	if err != nil {
 		//panic(err)
@@ -153,13 +141,9 @@ func main() {
 		if peer.ID == host.ID() {
 			continue
 		}
-		//logger.Debug("Found peer:", peer)
-
-		//logger.Debug("Connecting to:", peer)
 		stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
 
 		if err != nil {
-			//logger.Warning("Connection failed:", err)
 			continue
 		} else {
 			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
@@ -168,7 +152,6 @@ func main() {
 			go readData(rw)
 		}
 
-		//logger.Info("Connected to:", peer)
 	}
 
 	select {}

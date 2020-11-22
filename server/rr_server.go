@@ -18,11 +18,7 @@ import (
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
-	//logging "github.com/whyrusleeping/go-logging"
-	//"github.com/ipfs/go-log"
 )
-
-//var logger = log.Logger("rendezvousrat")
 
 func handleStream(stream network.Stream) {
 	fmt.Println("Got a new stream!")
@@ -41,12 +37,10 @@ func readData(rw *bufio.ReadWriter) {
 		str, err := rw.ReadString('\n')
 		if err != nil {
 			continue
-		} else if strings.Contains(str, ":") {
-			var id = strings.Split(str, ":")
-			fmt.Printf("%s Connected!\n", id[0])
+		} else if strings.HasPrefix(str, "+") {
+			var id = strings.Split(str, "+")
+			fmt.Printf("%s Connected!\n", id[1])
 		} else if str != "\n" {
-			// Green console colour:    \x1b[32m
-			// Reset console colour:    \x1b[0m
 			fmt.Printf("%s", str)
 		}
 
@@ -81,8 +75,7 @@ func writeData(rw *bufio.ReadWriter) {
 }
 
 func main() {
-	//log.SetAllLoggers(logging.WARNING)
-	//log.SetLogLevel("rendezvous", "info")
+
 	help := flag.Bool("h", false, "Display Help")
 	config, err := ParseFlags()
 	if err != nil {
@@ -90,9 +83,9 @@ func main() {
 	}
 
 	if *help {
-		fmt.Println("This program demonstrates a simple p2p chat application using libp2p")
+		fmt.Println("This program demonstrates a simple p2p RAT using libp2p and rendezvous")
 		fmt.Println()
-		fmt.Println("Usage: Run './chat in two different terminals. Let them connect to the bootstrap nodes, announce themselves and connect to the peers")
+		fmt.Println("Usage: Run './server -rendezvous meetmehere")
 		flag.PrintDefaults()
 		return
 	}
@@ -109,7 +102,6 @@ func main() {
 		//panic(err)
 	}
 	fmt.Println("Host created. We are:", host.ID())
-	//logger.Info(host.Addrs())
 
 	// Set a function as stream handler. This function is called when a peer
 	// initiates a connection and starts a stream with this peer.
@@ -126,7 +118,7 @@ func main() {
 
 	// Bootstrap the DHT. In the default configuration, this spawns a Background
 	// thread that will refresh the peer table every five minutes.
-	//logger.Debug("Bootstrapping the DHT")
+
 	if err = kademliaDHT.Bootstrap(ctx); err != nil {
 		//panic(err)
 	}
@@ -140,10 +132,9 @@ func main() {
 		go func() {
 			defer wg.Done()
 			if err := host.Connect(ctx, *peerinfo); err != nil {
-				//logger.Warning(err)
 
 			} else {
-				//logger.Info("Connection established with bootstrap node:", *peerinfo)
+
 			}
 		}()
 	}
@@ -158,7 +149,7 @@ func main() {
 	fmt.Println("Waiting for agent...")
 	// Now, look for others who have announced
 	// This is like your friend telling you the location to meet you.
-	//logger.Debug("Searching for other peers...")
+
 	peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 	if err != nil {
 		//panic(err)
@@ -168,13 +159,10 @@ func main() {
 		if peer.ID == host.ID() {
 			continue
 		}
-		//logger.Debug("Found peer:", peer)
 
-		//logger.Debug("Connecting to:", peer)
 		stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
 
 		if err != nil {
-			//logger.Warning("Connection failed:", err)
 
 		} else {
 
